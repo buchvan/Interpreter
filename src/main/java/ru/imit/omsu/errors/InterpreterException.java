@@ -2,40 +2,40 @@ package ru.imit.omsu.errors;
 
 import ru.imit.omsu.models.expressions.Expression;
 
-public class GrammarException extends Exception {
+public class InterpreterException extends Exception {
 
-    private ErrorCode errorCode;
+    private InterpreterErrorCode errorCode;
     private String name;
     private Expression expression;
     private Integer line;
 
-    public GrammarException(ErrorCode errorCode) {
+    public InterpreterException(InterpreterErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 
-    public GrammarException(ErrorCode errorCode, String name) {
+    public InterpreterException(InterpreterErrorCode errorCode, String name) {
         this.errorCode = errorCode;
         this.name = name;
     }
 
-    public GrammarException(ErrorCode errorCode, String name, int line) {
+    public InterpreterException(InterpreterErrorCode errorCode, String name, int line) {
         this.errorCode = errorCode;
         this.name = name;
         this.line = line;
     }
 
-    public GrammarException(ErrorCode errorCode, Expression expression) {
+    public InterpreterException(InterpreterErrorCode errorCode, Expression expression) {
         this.errorCode = errorCode;
         this.expression = expression;
     }
 
-    public GrammarException(ErrorCode errorCode, Expression expression, int line) {
+    public InterpreterException(InterpreterErrorCode errorCode, Expression expression, int line) {
         this.errorCode = errorCode;
         this.expression = expression;
         this.line = line;
     }
 
-    public ErrorCode getErrorCode() {
+    public InterpreterErrorCode getErrorCode() {
         return errorCode;
     }
 
@@ -61,12 +61,12 @@ public class GrammarException extends Exception {
 
     @Override
     public String toString() {
-        if (errorCode == ErrorCode.RUNTIME_ERROR) {
+        if (errorCode == InterpreterErrorCode.RUNTIME_ERROR) {
             return errorCode.getMessage() + " " + expression + ":" + line;
         }
-        if (errorCode == ErrorCode.PARAMETER_NOT_FOUND
-                || errorCode == ErrorCode.FUNCTION_NOT_FOUND
-                || errorCode == ErrorCode.ARGUMENT_NUMBER_MISMATCH) {
+        if (errorCode == InterpreterErrorCode.PARAMETER_NOT_FOUND
+                || errorCode == InterpreterErrorCode.FUNCTION_NOT_FOUND
+                || errorCode == InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH) {
             return errorCode.getMessage() + " " + name + ":" + line;
         }
         return errorCode.getMessage();

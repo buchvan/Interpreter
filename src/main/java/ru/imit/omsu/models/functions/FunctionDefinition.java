@@ -1,8 +1,8 @@
 package ru.imit.omsu.models.functions;
 
 import ru.imit.omsu.Interpreter;
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 import ru.imit.omsu.models.expressions.Expression;
 
 import java.util.*;
@@ -15,9 +15,9 @@ public class FunctionDefinition {
     private FunctionContent content;
 
     public FunctionDefinition(String identifier, List<String> parameterList, Expression expression)
-            throws GrammarException {
+            throws InterpreterException {
         if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.identifier = identifier;
         content = new FunctionContent(parameterList, expression);
@@ -28,7 +28,7 @@ public class FunctionDefinition {
     }
 
     public List<String> getParameterList() {
-        return content.getParams();
+        return content.getParameterList();
     }
 
     public Expression getExpression() {
@@ -47,21 +47,21 @@ public class FunctionDefinition {
 
     protected static final Pattern FUNCTION_DEFINITION_PATTERN = Pattern.compile(RE_FUNCTION_DEFINITION);
 
-    public static FunctionDefinition getFunctionDefinition(String functionDefinition, int line) throws GrammarException {
+    public static FunctionDefinition getFunctionDefinition(String functionDefinition, int line) throws InterpreterException {
         Matcher matcher = FUNCTION_DEFINITION_PATTERN.matcher(functionDefinition);
-        if (matcher.find()) {
-            String[] params;
-            if (matcher.group(3) != null) {
-                params = matcher.group(3).substring(1).split(",");
-            } else {
-                params = new String[0];
-            }
-            List<String> parameterList = new ArrayList<>(1 + params.length);
-            parameterList.add(matcher.group(2));
-            parameterList.addAll(Arrays.asList(params));
-            return new FunctionDefinition(matcher.group(1), parameterList, Expression.getExpression(matcher.group(4), line));
+        if (!matcher.find()) {
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
-        throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+        String[] params;
+        if (matcher.group(3) != null) {
+            params = matcher.group(3).substring(1).split(",");
+        } else {
+            params = new String[0];
+        }
+        List<String> parameterList = new ArrayList<>(1 + params.length);
+        parameterList.add(matcher.group(2));
+        parameterList.addAll(Arrays.asList(params));
+        return new FunctionDefinition(matcher.group(1), parameterList, Expression.getExpression(matcher.group(4), line));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package ru.imit.omsu;
 
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 import ru.imit.omsu.models.Program;
 import ru.imit.omsu.models.expressions.Expression;
 import ru.imit.omsu.models.functions.FunctionDefinition;
@@ -29,33 +29,48 @@ public class Interpreter {
 
     public static final Pattern OPERATION_PATTERN = Pattern.compile(RE_OPERATION);
 
-    public static void main(String[] args) {
-        try {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Print lines of program (Enter - new line, ^ - end of input):");
-            List<String> lines = new ArrayList<>();
-            lines.add(scanner.nextLine());
-            while (!lines.get(lines.size() - 1).equals("^")) {
-                lines.add(scanner.nextLine());
-            }
-            lines.remove(lines.size() - 1);
-            String errorRe = "[~!@#$^.\t\\s]";
-            Pattern patternError = Pattern.compile(errorRe);
-            Expression expression;
-            int i = 0;
-            if (lines.size() > 1) {
-                for (i = 0; i < lines.size() - 1; i++) {
-                    if (patternError.matcher(lines.get(i)).find()) {
-                        throw new GrammarException(ErrorCode.SYNTAX_ERROR);
-                    }
-                    program.addFunctionDefinition(FunctionDefinition.getFunctionDefinition(lines.get(i), i + 1));
+    public static final String RE_ERROR = "[~!@#$^.\t\\s]";
+
+    public static final Pattern ERROR_PATTERN = Pattern.compile(RE_ERROR);
+
+
+
+    public static int run(List<String> lines) throws InterpreterException {
+        String currentLine;
+        int i = 0;
+        if (lines.size() > 1) {
+            for (i = 0; i < lines.size() - 1; i++) {
+                currentLine = lines.get(i);
+                if (ERROR_PATTERN.matcher(currentLine).find()) {
+                    throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
                 }
+                program.addFunctionDefinition(FunctionDefinition.getFunctionDefinition(currentLine, i + 1));
             }
-            i++;
-            expression = Expression.getExpression(lines.get(lines.size() - 1), i);
-            program.setExpression(expression);
-            System.out.println(program.run());
-        } catch (GrammarException ex) {
+        }
+        i++;
+        currentLine = lines.get(lines.size() - 1);
+        if (ERROR_PATTERN.matcher(currentLine).find()) {
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
+        }
+        Expression expression = Expression.getExpression(currentLine, i);
+        program.setExpression(expression);
+        return program.run();
+    }
+
+
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Print lines of program (Enter - new line, ^ - end of input):");
+        List<String> lines = new ArrayList<>();
+        lines.add(scanner.nextLine());
+        while (!lines.get(lines.size() - 1).equals("^")) {
+            lines.add(scanner.nextLine());
+        }
+        lines.remove(lines.size() - 1);
+        try {
+            System.out.println(run(lines));
+        } catch (InterpreterException ex) {
             System.out.println(ex.toString());
         }
     }

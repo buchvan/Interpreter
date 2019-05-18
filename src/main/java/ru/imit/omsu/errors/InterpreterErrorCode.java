@@ -1,6 +1,6 @@
 package ru.imit.omsu.errors;
 
-public enum ErrorCode {
+public enum InterpreterErrorCode {
 
     SYNTAX_ERROR("SYNTAX ERROR"),
     PARAMETER_NOT_FOUND("PARAMETER NOT FOUND"),
@@ -11,7 +11,7 @@ public enum ErrorCode {
 
     private String message;
 
-    ErrorCode(String message) {
+    InterpreterErrorCode(String message) {
         this.message = message;
     }
 

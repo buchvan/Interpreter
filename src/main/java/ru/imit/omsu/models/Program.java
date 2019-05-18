@@ -1,7 +1,7 @@
 package ru.imit.omsu.models;
 
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 import ru.imit.omsu.models.expressions.Expression;
 import ru.imit.omsu.models.functions.FunctionDefinition;
 
@@ -17,10 +17,10 @@ public class Program {
         this.functionDefinitions = new HashMap<>();
     }
 
-    public void addFunctionDefinition(FunctionDefinition functionDefinition) throws GrammarException {
+    public void addFunctionDefinition(FunctionDefinition functionDefinition) throws InterpreterException {
         String identifier = functionDefinition.getIdentifier();
         if (functionDefinitions.containsKey(identifier)) {
-            throw new GrammarException(ErrorCode.RUNTIME_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.RUNTIME_ERROR);
         }
         functionDefinitions.put(identifier, functionDefinition);
     }
@@ -33,15 +33,15 @@ public class Program {
         return functionDefinitions;
     }
 
-    public FunctionDefinition getFunctionDefinition(String identifier, int line) throws GrammarException {
+    public FunctionDefinition getFunctionDefinition(String identifier, int line) throws InterpreterException {
         FunctionDefinition functionDefinition = functionDefinitions.get(identifier);
         if (functionDefinition == null) {
-            throw new GrammarException(ErrorCode.FUNCTION_NOT_FOUND, identifier, line);
+            throw new InterpreterException(InterpreterErrorCode.FUNCTION_NOT_FOUND, identifier, line);
         }
         return functionDefinition;
     }
 
-    public int run() throws GrammarException {
+    public int run() throws InterpreterException {
         return expression.getValueWithParams(new HashMap<>(0));
     }
 }

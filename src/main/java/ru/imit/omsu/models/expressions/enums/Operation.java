@@ -1,7 +1,7 @@
 package ru.imit.omsu.models.expressions.enums;
 
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 
 public enum Operation {
 
@@ -17,7 +17,7 @@ public enum Operation {
         return symbol;
     }
 
-    public static Operation value(String string) throws GrammarException {
+    public static Operation value(String string) throws InterpreterException {
         if (string.length() == 1) {
             for (Operation operation : Operation.values()) {
                 if (operation.getSymbol() == string.charAt(0)) {
@@ -25,6 +25,6 @@ public enum Operation {
                 }
             }
         }
-        throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+        throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
     }
 }

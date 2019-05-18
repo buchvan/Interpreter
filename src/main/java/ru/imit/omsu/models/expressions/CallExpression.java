@@ -1,8 +1,8 @@
 package ru.imit.omsu.models.expressions;
 
 import ru.imit.omsu.Interpreter;
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 import ru.imit.omsu.models.functions.FunctionDefinition;
 
 import java.util.*;
@@ -14,19 +14,19 @@ public class CallExpression extends Expression {
     private List<Expression> argumentList;
     private Integer line;
 
-    public CallExpression(String identifier, List<Expression> argumentList, Integer line) throws GrammarException {
+    public CallExpression(String identifier, List<Expression> argumentList, Integer line) throws InterpreterException {
         if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.identifier = identifier;
         this.argumentList = argumentList;
         this.line = line;
     }
 
-    public CallExpression(String callExpression, Integer line) throws GrammarException {
+    public CallExpression(String callExpression, Integer line) throws InterpreterException {
         Matcher matcher = CALL_EXPRESSION_PATTERN.matcher(callExpression);
         if (!matcher.find()) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.line = line;
         String[] arguments;
@@ -45,10 +45,10 @@ public class CallExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws GrammarException {
+    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
         FunctionDefinition functionDefinition = Interpreter.program.getFunctionDefinition(identifier, line);
         if (functionDefinition.getParameterList().size() != argumentList.size()) {
-            throw new GrammarException(ErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier, line);
+            throw new InterpreterException(InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier, line);
         }
         List<String> params = functionDefinition.getParameterList();
         Expression expression = functionDefinition.getExpression();
@@ -58,22 +58,17 @@ public class CallExpression extends Expression {
             identifierToValue.put(params.get(i), expressionArgument.getValueWithParams(idToValue));
             i++;
         }
-        System.out.println(this + " = " + expression);
 
         //DEBUG
-        int res = expression.getValueWithParams(identifierToValue);
-        System.out.println("---------------");
-        System.out.println(this + " = " + expression);
-        System.out.println(res);
-        return res;
+//        System.out.println(this + " = " + expression);
+//        int res = expression.getValueWithParams(identifierToValue);
+//        System.out.println("---------------");
+//        System.out.println(this + " = " + expression);
+//        System.out.println(res);
+//        return res;
         //DEBUG
 
-//            return expression.getValueWithParams(identifierToValue)
-    }
-
-    @Override
-    public Integer getLine() {
-        return line;
+        return expression.getValueWithParams(identifierToValue);
     }
 
     @Override

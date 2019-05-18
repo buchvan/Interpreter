@@ -2,8 +2,8 @@ package ru.imit.omsu.models.expressions;
 
 import ru.imit.omsu.Interpreter;
 import ru.imit.omsu.models.expressions.enums.Operation;
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -16,9 +16,9 @@ public class BinaryExpression extends Expression {
     private Integer line;
 
     public BinaryExpression(Expression firstExpression, String operation, Expression secondExpression, Integer line)
-            throws GrammarException {
+            throws InterpreterException {
         if (!Interpreter.OPERATION_PATTERN.matcher(operation).find()) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.firstExpression = firstExpression;
         this.operation = Operation.value(operation);
@@ -27,9 +27,9 @@ public class BinaryExpression extends Expression {
     }
 
     public BinaryExpression(Expression firstExpression, Operation operation, Expression secondExpression, Integer line)
-            throws GrammarException {
+            throws InterpreterException {
         if (operation == null) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.firstExpression = firstExpression;
         this.operation = operation;
@@ -37,10 +37,10 @@ public class BinaryExpression extends Expression {
         this.line = line;
     }
 
-    public BinaryExpression(String binaryExpression, Integer line) throws GrammarException {
+    public BinaryExpression(String binaryExpression, Integer line) throws InterpreterException {
         Matcher matcher = BINARY_EXPRESSION_PATTERN.matcher(binaryExpression);
         if (!matcher.find()) {
-            throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         firstExpression = Expression.getExpression(matcher.group(1), line);
         operation = Operation.value(matcher.group(6));
@@ -61,7 +61,7 @@ public class BinaryExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws GrammarException {
+    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
         if (operation == Operation.PLUS) {
             return firstExpression.getValueWithParams(idToValue) + secondExpression.getValueWithParams(idToValue);
         }
@@ -74,7 +74,7 @@ public class BinaryExpression extends Expression {
         if (operation == Operation.DIVIDE) {
             int temp = secondExpression.getValueWithParams(idToValue);
             if (temp == 0) {
-                throw new GrammarException(ErrorCode.RUNTIME_ERROR, this, line);
+                throw new InterpreterException(InterpreterErrorCode.RUNTIME_ERROR, this, line);
             }
             return firstExpression.getValueWithParams(idToValue) / temp;
         }
@@ -90,12 +90,7 @@ public class BinaryExpression extends Expression {
         if (operation == Operation.EQUAL) {
             return firstExpression.getValueWithParams(idToValue) == secondExpression.getValueWithParams(idToValue) ? 1 : 0;
         }
-        throw new GrammarException(ErrorCode.IMPOSSIBLE_ERROR);
-    }
-
-    @Override
-    public Integer getLine() {
-        return line;
+        throw new InterpreterException(InterpreterErrorCode.IMPOSSIBLE_ERROR);
     }
 
     @Override

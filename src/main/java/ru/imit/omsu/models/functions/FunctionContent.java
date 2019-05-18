@@ -7,16 +7,16 @@ import java.util.Objects;
 
 public class FunctionContent {
 
-    private List<String> params;
+    private List<String> parameterList;
     private Expression expression;
 
-    public FunctionContent(List<String> params, Expression expression) {
-        this.params = params;
+    public FunctionContent(List<String> parameterList, Expression expression) {
+        this.parameterList = parameterList;
         this.expression = expression;
     }
 
-    public List<String> getParams() {
-        return params;
+    public List<String> getParameterList() {
+        return parameterList;
     }
 
     public Expression getExpression() {
@@ -28,18 +28,18 @@ public class FunctionContent {
         if (this == o) return true;
         if (!(o instanceof FunctionContent)) return false;
         FunctionContent content = (FunctionContent) o;
-        return Objects.equals(getParams(), content.getParams()) &&
+        return Objects.equals(getParameterList(), content.getParameterList()) &&
                 Objects.equals(getExpression(), content.getExpression());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getParams(), getExpression());
+        return Objects.hash(getParameterList(), getExpression());
     }
 
     @Override
     public String toString() {
-        return "(" + params +
+        return "(" + parameterList +
                 ")={" + expression +
                 '}';
     }

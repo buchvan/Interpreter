@@ -1,8 +1,8 @@
 package ru.imit.omsu.models.expressions;
 
 import ru.imit.omsu.Interpreter;
-import ru.imit.omsu.errors.ErrorCode;
-import ru.imit.omsu.errors.GrammarException;
+import ru.imit.omsu.errors.InterpreterErrorCode;
+import ru.imit.omsu.errors.InterpreterException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -10,9 +10,7 @@ import java.util.regex.Pattern;
 
 abstract public class Expression {
 
-    abstract public int getValueWithParams(Map<String, Integer> idToValue) throws GrammarException;
-    abstract public Integer getLine();
-
+    abstract public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException;
 
 
     protected static final String RE_CONSTANT_EXPRESSION = "^-?" + Interpreter.RE_NUMBER + "$";
@@ -36,7 +34,7 @@ abstract public class Expression {
 
 
 
-    public static Expression getExpression(String expression, Integer line) throws GrammarException {
+    public static Expression getExpression(String expression, Integer line) throws InterpreterException {
         Matcher matcher;
         matcher = Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(expression);
         if (matcher.find()) {
@@ -46,7 +44,7 @@ abstract public class Expression {
         matcher = CONSTANT_EXPRESSION_PATTERN.matcher(expression);
         if (matcher.find()) {
             return new ConstantExpression(
-                    expression.substring(matcher.start(), matcher.end()), line
+                    expression.substring(matcher.start(), matcher.end())
             );
         }
         matcher = BINARY_EXPRESSION_PATTERN.matcher(expression);
@@ -63,8 +61,7 @@ abstract public class Expression {
             return new IfExpression(
                     Expression.getExpression(matcher.group(1), line),
                     Expression.getExpression(matcher.group(2), line),
-                    Expression.getExpression(matcher.group(3), line),
-                    line
+                    Expression.getExpression(matcher.group(3), line)
             );
         }
         matcher = CALL_EXPRESSION_PATTERN.matcher(expression);
@@ -82,6 +79,6 @@ abstract public class Expression {
             }
             return new CallExpression(matcher.group(1), argumentList, line);
         }
-        throw new GrammarException(ErrorCode.SYNTAX_ERROR);
+        throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
     }
 }
