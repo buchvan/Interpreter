@@ -12,23 +12,20 @@ public class CallExpression extends Expression {
 
     private String identifier;
     private List<Expression> argumentList;
-    private Integer line;
 
-    public CallExpression(String identifier, List<Expression> argumentList, Integer line) throws InterpreterException {
+    public CallExpression(String identifier, List<Expression> argumentList) throws InterpreterException {
         if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.identifier = identifier;
         this.argumentList = argumentList;
-        this.line = line;
     }
 
-    public CallExpression(String callExpression, Integer line) throws InterpreterException {
+    public CallExpression(String callExpression) throws InterpreterException {
         Matcher matcher = CALL_EXPRESSION_PATTERN.matcher(callExpression);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
-        this.line = line;
         String[] arguments;
         if (matcher.group(3) != null) {
             arguments = matcher.group(3).split(",");
@@ -36,9 +33,9 @@ public class CallExpression extends Expression {
             arguments = new String[0];
         }
         List<Expression> argumentList = new ArrayList<>(1 + arguments.length);
-        argumentList.add(Expression.getExpression(matcher.group(2), line));
+        argumentList.add(Expression.getExpression(matcher.group(2)));
         for (String argument : arguments) {
-            argumentList.add(Expression.getExpression(argument, line));
+            argumentList.add(Expression.getExpression(argument));
         }
         identifier = matcher.group(1);
         this.argumentList = argumentList;
@@ -46,17 +43,29 @@ public class CallExpression extends Expression {
 
     @Override
     public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
-        FunctionDefinition functionDefinition = Interpreter.program.getFunctionDefinition(identifier, line);
+        FunctionDefinition functionDefinition;
+        try {
+            functionDefinition = Interpreter.program.getFunctionDefinition(identifier);
+        } catch (InterpreterException ex) {
+            ex.setLine(Interpreter.program.getLinesCount());
+            throw ex;
+        }
         if (functionDefinition.getParameterList().size() != argumentList.size()) {
-            throw new InterpreterException(InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier, line);
+            throw new InterpreterException(InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier,
+                    Interpreter.program.getLinesCount());
         }
         List<String> params = functionDefinition.getParameterList();
         Expression expression = functionDefinition.getExpression();
         Map<String, Integer> identifierToValue = new HashMap<>(argumentList.size());
         int i = 0;
-        for (Expression expressionArgument : argumentList) {
-            identifierToValue.put(params.get(i), expressionArgument.getValueWithParams(idToValue));
-            i++;
+        try {
+            for (Expression expressionArgument : argumentList) {
+                identifierToValue.put(params.get(i), expressionArgument.getValueWithParams(idToValue));
+                i++;
+            }
+        } catch (InterpreterException ex) {
+            ex.setLine(Interpreter.program.getLinesCount());
+            throw ex;
         }
 
         //DEBUG
@@ -68,7 +77,12 @@ public class CallExpression extends Expression {
 //        return res;
         //DEBUG
 
-        return expression.getValueWithParams(identifierToValue);
+        try {
+            return expression.getValueWithParams(identifierToValue);
+        } catch (InterpreterException ex) {
+            ex.setLine(functionDefinition.getLine());
+            throw ex;
+        }
     }
 
     @Override

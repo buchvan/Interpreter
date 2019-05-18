@@ -12,15 +12,19 @@ import java.util.regex.Pattern;
 public class FunctionDefinition {
 
     private String identifier;
-    private FunctionContent content;
+    private List<String> parameterList;
+    private Expression expression;
+    private int line;
 
-    public FunctionDefinition(String identifier, List<String> parameterList, Expression expression)
+    public FunctionDefinition(String identifier, List<String> parameterList, Expression expression, int line)
             throws InterpreterException {
         if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         this.identifier = identifier;
-        content = new FunctionContent(parameterList, expression);
+        this.parameterList = parameterList;
+        this.expression = expression;
+        this.line = line;
     }
 
     public String getIdentifier() {
@@ -28,13 +32,16 @@ public class FunctionDefinition {
     }
 
     public List<String> getParameterList() {
-        return content.getParameterList();
+        return parameterList;
     }
 
     public Expression getExpression() {
-        return content.getExpression();
+        return expression;
     }
 
+    public int getLine() {
+        return line;
+    }
 
 
     protected static final String RE_FUNCTION_DEFINITION = "^(" +
@@ -46,6 +53,7 @@ public class FunctionDefinition {
             ")*\\)=\\{(.+)\\}$";
 
     protected static final Pattern FUNCTION_DEFINITION_PATTERN = Pattern.compile(RE_FUNCTION_DEFINITION);
+
 
     public static FunctionDefinition getFunctionDefinition(String functionDefinition, int line) throws InterpreterException {
         Matcher matcher = FUNCTION_DEFINITION_PATTERN.matcher(functionDefinition);
@@ -61,7 +69,7 @@ public class FunctionDefinition {
         List<String> parameterList = new ArrayList<>(1 + params.length);
         parameterList.add(matcher.group(2));
         parameterList.addAll(Arrays.asList(params));
-        return new FunctionDefinition(matcher.group(1), parameterList, Expression.getExpression(matcher.group(4), line));
+        return new FunctionDefinition(matcher.group(1), parameterList, Expression.getExpression(matcher.group(4)), line);
     }
 
     @Override
@@ -69,17 +77,19 @@ public class FunctionDefinition {
         if (this == o) return true;
         if (!(o instanceof FunctionDefinition)) return false;
         FunctionDefinition that = (FunctionDefinition) o;
-        return Objects.equals(identifier, that.identifier) &&
-                Objects.equals(content, that.content);
+        return getLine() == that.getLine() &&
+                Objects.equals(getIdentifier(), that.getIdentifier()) &&
+                Objects.equals(getParameterList(), that.getParameterList()) &&
+                Objects.equals(getExpression(), that.getExpression());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(identifier, content);
+        return Objects.hash(getIdentifier(), getParameterList(), getExpression(), getLine());
     }
 
     @Override
     public String toString() {
-        return identifier + content.toString();
+        return identifier + "(" + parameterList + ")={" + expression + "}";
     }
 }

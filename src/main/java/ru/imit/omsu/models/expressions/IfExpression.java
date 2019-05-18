@@ -18,14 +18,14 @@ public class IfExpression extends Expression {
         this.expressionFalse = expressionFalse;
     }
 
-    public IfExpression(String ifExpression, Integer line) throws InterpreterException {
+    public IfExpression(String ifExpression) throws InterpreterException {
         Matcher matcher = IF_EXPRESSION_PATTERN.matcher(ifExpression);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
-        condition = Expression.getExpression(matcher.group(1), line);
-        expressionTrue = Expression.getExpression(matcher.group(2), line);
-        expressionFalse = Expression.getExpression(matcher.group(3), line);
+        condition = Expression.getExpression(matcher.group(1));
+        expressionTrue = Expression.getExpression(matcher.group(2));
+        expressionFalse = Expression.getExpression(matcher.group(3));
     }
 
     public Expression getCondition() {

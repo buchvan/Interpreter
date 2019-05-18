@@ -12,6 +12,7 @@ public class Program {
 
     private Map<String, FunctionDefinition> functionDefinitions;
     private Expression expression;
+    private int linesCount;
 
     public Program() {
         this.functionDefinitions = new HashMap<>();
@@ -29,14 +30,18 @@ public class Program {
         this.expression = expression;
     }
 
-    public Map<String, FunctionDefinition> getFunctionDefinitionList() {
-        return functionDefinitions;
+    public int getLinesCount() {
+        return linesCount;
     }
 
-    public FunctionDefinition getFunctionDefinition(String identifier, int line) throws InterpreterException {
+    public void setLinesCount(int linesCount) {
+        this.linesCount = linesCount;
+    }
+
+    public FunctionDefinition getFunctionDefinition(String identifier) throws InterpreterException {
         FunctionDefinition functionDefinition = functionDefinitions.get(identifier);
         if (functionDefinition == null) {
-            throw new InterpreterException(InterpreterErrorCode.FUNCTION_NOT_FOUND, identifier, line);
+            throw new InterpreterException(InterpreterErrorCode.FUNCTION_NOT_FOUND, identifier);
         }
         return functionDefinition;
     }

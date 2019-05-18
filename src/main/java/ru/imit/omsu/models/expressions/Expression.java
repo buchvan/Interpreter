@@ -34,12 +34,12 @@ abstract public class Expression {
 
 
 
-    public static Expression getExpression(String expression, Integer line) throws InterpreterException {
+    public static Expression getExpression(String expression) throws InterpreterException {
         Matcher matcher;
         matcher = Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(expression);
         if (matcher.find()) {
             return new Variable(
-                    expression.substring(matcher.start(), matcher.end()), line);
+                    expression.substring(matcher.start(), matcher.end()));
         }
         matcher = CONSTANT_EXPRESSION_PATTERN.matcher(expression);
         if (matcher.find()) {
@@ -50,18 +50,17 @@ abstract public class Expression {
         matcher = BINARY_EXPRESSION_PATTERN.matcher(expression);
         if (matcher.find()) {
             return new BinaryExpression(
-                    Expression.getExpression(matcher.group(1), line),
+                    Expression.getExpression(matcher.group(1)),
                     matcher.group(6),
-                    Expression.getExpression(matcher.group(7), line),
-                    line
+                    Expression.getExpression(matcher.group(7))
             );
         }
         matcher = IF_EXPRESSION_PATTERN.matcher(expression);
         if (matcher.find()) {
             return new IfExpression(
-                    Expression.getExpression(matcher.group(1), line),
-                    Expression.getExpression(matcher.group(2), line),
-                    Expression.getExpression(matcher.group(3), line)
+                    Expression.getExpression(matcher.group(1)),
+                    Expression.getExpression(matcher.group(2)),
+                    Expression.getExpression(matcher.group(3))
             );
         }
         matcher = CALL_EXPRESSION_PATTERN.matcher(expression);
@@ -73,11 +72,11 @@ abstract public class Expression {
                 arguments = new String[0];
             }
             List<Expression> argumentList = new ArrayList<>(1 + arguments.length);
-            argumentList.add(Expression.getExpression(matcher.group(2), line));
+            argumentList.add(Expression.getExpression(matcher.group(2)));
             for (String argument : arguments) {
-                argumentList.add(Expression.getExpression(argument, line));
+                argumentList.add(Expression.getExpression(argument));
             }
-            return new CallExpression(matcher.group(1), argumentList, line);
+            return new CallExpression(matcher.group(1), argumentList);
         }
         throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
     }

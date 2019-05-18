@@ -52,8 +52,9 @@ public class Interpreter {
         if (ERROR_PATTERN.matcher(currentLine).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
-        Expression expression = Expression.getExpression(currentLine, i);
+        Expression expression = Expression.getExpression(currentLine);
         program.setExpression(expression);
+        program.setLinesCount(i);
         return program.run();
     }
 
