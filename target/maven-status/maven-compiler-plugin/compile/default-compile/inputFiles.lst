@@ -1,0 +1,13 @@
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\Expression.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\Interpreter.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\functions\FunctionDefinition.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\BinaryExpression.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\enums\Operation.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\Variable.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\errors\GrammarException.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\CallExpression.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\errors\ErrorCode.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\IfExpression.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\expressions\ConstantExpression.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\Program.java
+C:\JavaMy\other\Interpreter\src\main\java\ru\imit\omsu\models\functions\FunctionContent.java
