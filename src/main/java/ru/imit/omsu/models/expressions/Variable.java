@@ -12,9 +12,7 @@ public class Variable extends Expression {
     private String identifier;
 
     public Variable(String identifier) throws InterpreterException {
-        if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
-            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
-        }
+        Interpreter.checkOfIdentifier(identifier);
         this.identifier = identifier;
     }
 

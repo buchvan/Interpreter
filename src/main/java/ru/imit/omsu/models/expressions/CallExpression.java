@@ -14,18 +14,21 @@ public class CallExpression extends Expression {
     private List<Expression> argumentList;
 
     public CallExpression(String identifier, List<Expression> argumentList) throws InterpreterException {
-        if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
-            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
-        }
+        Interpreter.checkOfIdentifier(identifier);
         this.identifier = identifier;
         this.argumentList = argumentList;
     }
 
-    public CallExpression(String callExpression) throws InterpreterException {
+    private static Matcher checkOfStringCallExpression(String callExpression) throws InterpreterException {
         Matcher matcher = CALL_EXPRESSION_PATTERN.matcher(callExpression);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+        return matcher;
+    }
+
+    public CallExpression(String callExpression) throws InterpreterException {
+        Matcher matcher = checkOfStringCallExpression(callExpression);
         String[] arguments;
         if (matcher.group(3) != null) {
             arguments = matcher.group(3).split(",");
@@ -41,44 +44,41 @@ public class CallExpression extends Expression {
         this.argumentList = argumentList;
     }
 
+    private void checkOfParametersCount(List<String> parameterList) throws InterpreterException {
+        if (parameterList.size() != argumentList.size()) {
+            throw new InterpreterException(InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier,
+                    Interpreter.program.getLinesCount());
+        }
+    }
+
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
+    public int getValueWithParams(Map<String, Integer> identifierToValueFromUp) throws InterpreterException {
         FunctionDefinition functionDefinition;
         try {
             functionDefinition = Interpreter.program.getFunctionDefinition(identifier);
         } catch (InterpreterException ex) {
-            ex.setLine(Interpreter.program.getLinesCount());
+            if (ex.getErrorCode() == InterpreterErrorCode.FUNCTION_NOT_FOUND) {
+                ex.setLine(Interpreter.program.getLinesCount());
+            }
             throw ex;
         }
-        if (functionDefinition.getParameterList().size() != argumentList.size()) {
-            throw new InterpreterException(InterpreterErrorCode.ARGUMENT_NUMBER_MISMATCH, identifier,
-                    Interpreter.program.getLinesCount());
-        }
+        checkOfParametersCount(functionDefinition.getParameterList());
         List<String> params = functionDefinition.getParameterList();
         Expression expression = functionDefinition.getExpression();
-        Map<String, Integer> identifierToValue = new HashMap<>(argumentList.size());
-        int i = 0;
+        Map<String, Integer> identifierToValueIts = new HashMap<>(argumentList.size());
+        int currentParameterIndex = 0;
         try {
             for (Expression expressionArgument : argumentList) {
-                identifierToValue.put(params.get(i), expressionArgument.getValueWithParams(idToValue));
-                i++;
+                identifierToValueIts.put(params.get(currentParameterIndex),
+                        expressionArgument.getValueWithParams(identifierToValueFromUp));
+                currentParameterIndex++;
             }
         } catch (InterpreterException ex) {
             ex.setLine(Interpreter.program.getLinesCount());
             throw ex;
         }
-
-        //DEBUG
-//        System.out.println(this + " = " + expression);
-//        int res = expression.getValueWithParams(identifierToValue);
-//        System.out.println("---------------");
-//        System.out.println(this + " = " + expression);
-//        System.out.println(res);
-//        return res;
-        //DEBUG
-
         try {
-            return expression.getValueWithParams(identifierToValue);
+            return expression.getValueWithParams(identifierToValueIts);
         } catch (InterpreterException ex) {
             ex.setLine(functionDefinition.getLine());
             throw ex;

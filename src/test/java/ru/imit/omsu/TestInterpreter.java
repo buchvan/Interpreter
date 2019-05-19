@@ -35,6 +35,28 @@ public class TestInterpreter {
         assertEquals(4, Interpreter.run(getLinesForCalculate2()));
     }
 
+    private List<String> getLinesForCalculate3() {
+        return new ArrayList<>(Collections.singletonList(
+                "(-5%3)"
+        ));
+    }
+
+    @Test
+    public void calculateTest3() throws InterpreterException {
+        assertEquals(-2, Interpreter.run(getLinesForCalculate3()));
+    }
+
+    private List<String> getLinesForCalculate4() {
+        return new ArrayList<>(Collections.singletonList(
+                "([(2>5)]?{2}:{7}%3)"
+        ));
+    }
+
+    @Test
+    public void calculateTest4() throws InterpreterException {
+        assertEquals(1, Interpreter.run(getLinesForCalculate4()));
+    }
+
     private List<String> getLinesForIfExpression1() {
         return new ArrayList<>(Collections.singletonList(
                 "[((10+20)>(20+10))]?{1}:{0}"

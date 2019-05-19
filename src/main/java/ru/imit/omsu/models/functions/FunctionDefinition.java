@@ -14,17 +14,15 @@ public class FunctionDefinition {
     private String identifier;
     private List<String> parameterList;
     private Expression expression;
-    private int line;
+    private int lineNumber;
 
-    public FunctionDefinition(String identifier, List<String> parameterList, Expression expression, int line)
+    public FunctionDefinition(String identifier, List<String> parameterList, Expression expression, int lineNumber)
             throws InterpreterException {
-        if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
-            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
-        }
+        Interpreter.checkOfIdentifier(identifier);
         this.identifier = identifier;
         this.parameterList = parameterList;
         this.expression = expression;
-        this.line = line;
+        this.lineNumber = lineNumber;
     }
 
     public String getIdentifier() {
@@ -40,7 +38,7 @@ public class FunctionDefinition {
     }
 
     public int getLine() {
-        return line;
+        return lineNumber;
     }
 
 
@@ -55,11 +53,16 @@ public class FunctionDefinition {
     protected static final Pattern FUNCTION_DEFINITION_PATTERN = Pattern.compile(RE_FUNCTION_DEFINITION);
 
 
-    public static FunctionDefinition getFunctionDefinition(String functionDefinition, int line) throws InterpreterException {
+    private static Matcher checkOfStringFunctionDefinition(String functionDefinition) throws InterpreterException {
         Matcher matcher = FUNCTION_DEFINITION_PATTERN.matcher(functionDefinition);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+        return matcher;
+    }
+
+    public static FunctionDefinition getFunctionDefinition(String functionDefinition, int line) throws InterpreterException {
+        Matcher matcher = checkOfStringFunctionDefinition(functionDefinition);
         String[] params;
         if (matcher.group(3) != null) {
             params = matcher.group(3).substring(1).split(",");

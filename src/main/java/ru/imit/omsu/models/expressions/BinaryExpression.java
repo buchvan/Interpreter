@@ -14,31 +14,44 @@ public class BinaryExpression extends Expression {
     private Operation operation;
     private Expression secondExpression;
 
-    public BinaryExpression(Expression firstExpression, String operation, Expression secondExpression)
-            throws InterpreterException {
+    private static void checkOfStringOperation(String operation) throws InterpreterException {
         if (!Interpreter.OPERATION_PATTERN.matcher(operation).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+    }
+
+    public BinaryExpression(Expression firstExpression, String operation, Expression secondExpression)
+            throws InterpreterException {
+        checkOfStringOperation(operation);
         this.firstExpression = firstExpression;
         this.operation = Operation.value(operation);
         this.secondExpression = secondExpression;
     }
 
-    public BinaryExpression(Expression firstExpression, Operation operation, Expression secondExpression)
-            throws InterpreterException {
+    private static void checkOfOperation(Operation operation) throws InterpreterException {
         if (operation == null) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+    }
+
+    public BinaryExpression(Expression firstExpression, Operation operation, Expression secondExpression)
+            throws InterpreterException {
+        checkOfOperation(operation);
         this.firstExpression = firstExpression;
         this.operation = operation;
         this.secondExpression = secondExpression;
     }
 
-    public BinaryExpression(String binaryExpression) throws InterpreterException {
+    private static Matcher checkOfStringBinaryExpression(String binaryExpression) throws InterpreterException {
         Matcher matcher = BINARY_EXPRESSION_PATTERN.matcher(binaryExpression);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+        return matcher;
+    }
+
+    public BinaryExpression(String binaryExpression) throws InterpreterException {
+        Matcher matcher = checkOfStringBinaryExpression(binaryExpression);
         firstExpression = Expression.getExpression(matcher.group(1));
         operation = Operation.value(matcher.group(6));
         secondExpression = Expression.getExpression(matcher.group(7));
@@ -56,35 +69,47 @@ public class BinaryExpression extends Expression {
         return secondExpression;
     }
 
+    private int checkNotZero(Expression expression, Map<String, Integer> identifierToValue) throws InterpreterException {
+        int temp = expression.getValueWithParams(identifierToValue);
+        if (temp == 0) {
+            throw new InterpreterException(InterpreterErrorCode.RUNTIME_ERROR, this);
+        }
+        return temp;
+    }
+
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
+    public int getValueWithParams(Map<String, Integer> identifierToValue) throws InterpreterException {
         if (operation == Operation.PLUS) {
-            return firstExpression.getValueWithParams(idToValue) + secondExpression.getValueWithParams(idToValue);
+            return firstExpression.getValueWithParams(identifierToValue)
+                    + secondExpression.getValueWithParams(identifierToValue);
         }
         if (operation == Operation.MINUS) {
-            return firstExpression.getValueWithParams(idToValue) - secondExpression.getValueWithParams(idToValue);
+            return firstExpression.getValueWithParams(identifierToValue)
+                    - secondExpression.getValueWithParams(identifierToValue);
         }
         if (operation == Operation.MULTIPLY) {
-            return firstExpression.getValueWithParams(idToValue) * secondExpression.getValueWithParams(idToValue);
+            return firstExpression.getValueWithParams(identifierToValue)
+                    * secondExpression.getValueWithParams(identifierToValue);
         }
         if (operation == Operation.DIVIDE) {
-            int temp = secondExpression.getValueWithParams(idToValue);
-            if (temp == 0) {
-                throw new InterpreterException(InterpreterErrorCode.RUNTIME_ERROR, this);
-            }
-            return firstExpression.getValueWithParams(idToValue) / temp;
+            return firstExpression.getValueWithParams(identifierToValue)
+                    / checkNotZero(secondExpression, identifierToValue);
         }
         if (operation == Operation.REMAINDER) {
-            return firstExpression.getValueWithParams(idToValue) % secondExpression.getValueWithParams(idToValue);
+            return firstExpression.getValueWithParams(identifierToValue)
+                    % checkNotZero(secondExpression, identifierToValue);
         }
         if (operation == Operation.MORE) {
-            return firstExpression.getValueWithParams(idToValue) > secondExpression.getValueWithParams(idToValue) ? 1 : 0;
+            return firstExpression.getValueWithParams(identifierToValue)
+                    > secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
         }
         if (operation == Operation.LESS) {
-            return firstExpression.getValueWithParams(idToValue) < secondExpression.getValueWithParams(idToValue) ? 1 : 0;
+            return firstExpression.getValueWithParams(identifierToValue)
+                    < secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
         }
         if (operation == Operation.EQUAL) {
-            return firstExpression.getValueWithParams(idToValue) == secondExpression.getValueWithParams(idToValue) ? 1 : 0;
+            return firstExpression.getValueWithParams(identifierToValue)
+                    == secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
         }
         throw new InterpreterException(InterpreterErrorCode.IMPOSSIBLE_ERROR);
     }

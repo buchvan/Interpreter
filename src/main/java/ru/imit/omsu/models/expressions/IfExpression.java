@@ -18,11 +18,16 @@ public class IfExpression extends Expression {
         this.expressionFalse = expressionFalse;
     }
 
-    public IfExpression(String ifExpression) throws InterpreterException {
+    private static Matcher checkOfStringIfExpression(String ifExpression) throws InterpreterException {
         Matcher matcher = IF_EXPRESSION_PATTERN.matcher(ifExpression);
         if (!matcher.find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+        return matcher;
+    }
+
+    public IfExpression(String ifExpression) throws InterpreterException {
+        Matcher matcher = checkOfStringIfExpression(ifExpression);
         condition = Expression.getExpression(matcher.group(1));
         expressionTrue = Expression.getExpression(matcher.group(2));
         expressionFalse = Expression.getExpression(matcher.group(3));

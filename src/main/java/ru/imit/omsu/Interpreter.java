@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
 
-    public static Program program = new Program();
+    public static Program program;
 
     public static final String RE_CHARACTER = "[A-Za-z_]";
     public static final String RE_DIGIT = "\\d";
@@ -22,7 +22,6 @@ public class Interpreter {
     public static final String RE_IDENTIFIER_INSERTED = RE_CHARACTER + "+";
     public static final String RE_IDENTIFIER_COMPLETELY = "^" + RE_IDENTIFIER_INSERTED + "$";
 
-    public static final Pattern IDENTIFIER_INSERTED_PATTERN = Pattern.compile(RE_IDENTIFIER_INSERTED);
     public static final Pattern IDENTIFIER_COMPLETELY_PATTERN = Pattern.compile(RE_IDENTIFIER_COMPLETELY);
 
     public static final String RE_OPERATION = "[+\\-*/%><=]";
@@ -34,27 +33,34 @@ public class Interpreter {
     public static final Pattern ERROR_PATTERN = Pattern.compile(RE_ERROR);
 
 
+    public static void checkOfIdentifier(String identifier) throws InterpreterException {
+        if (!Interpreter.IDENTIFIER_COMPLETELY_PATTERN.matcher(identifier).find()) {
+            throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
+        }
+    }
+
 
     public static int run(List<String> lines) throws InterpreterException {
         String currentLine;
-        int i = 0;
+        int currentLineIndex = 0;
+        program = new Program();
         if (lines.size() > 1) {
-            for (i = 0; i < lines.size() - 1; i++) {
-                currentLine = lines.get(i);
+            for (currentLineIndex = 0; currentLineIndex < lines.size() - 1; currentLineIndex++) {
+                currentLine = lines.get(currentLineIndex);
                 if (ERROR_PATTERN.matcher(currentLine).find()) {
                     throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
                 }
-                program.addFunctionDefinition(FunctionDefinition.getFunctionDefinition(currentLine, i + 1));
+                program.addFunctionDefinition(FunctionDefinition.getFunctionDefinition(currentLine, currentLineIndex + 1));
             }
         }
-        i++;
+        currentLineIndex++;
         currentLine = lines.get(lines.size() - 1);
         if (ERROR_PATTERN.matcher(currentLine).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
         Expression expression = Expression.getExpression(currentLine);
         program.setExpression(expression);
-        program.setLinesCount(i);
+        program.setLinesCount(currentLineIndex);
         return program.run();
     }
 

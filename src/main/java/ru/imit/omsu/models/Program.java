@@ -1,5 +1,6 @@
 package ru.imit.omsu.models;
 
+import ru.imit.omsu.Interpreter;
 import ru.imit.omsu.errors.InterpreterErrorCode;
 import ru.imit.omsu.errors.InterpreterException;
 import ru.imit.omsu.models.expressions.Expression;

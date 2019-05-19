@@ -13,24 +13,35 @@ abstract public class Expression {
     abstract public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException;
 
 
-    protected static final String RE_CONSTANT_EXPRESSION = "^-?" + Interpreter.RE_NUMBER + "$";
-    protected static final String RE_BINARY_EXPRESSION = "^\\(" +
-            "(([^()+\\-*/%><=]+)|(\\(.+\\))|(" +
-            Interpreter.RE_IDENTIFIER_INSERTED +"\\(.+(,.+)*\\)))" +
-            "(" + Interpreter.RE_OPERATION + ")" +
-            "(([^()+\\-*/%><=]+)|(\\(.+\\))|(" +
-            Interpreter.RE_IDENTIFIER_INSERTED + "\\(.+(,.+)*\\)))" +
-            "\\)$";
-    protected static final String RE_IF_EXPRESSION = "^\\[(.+)\\]" +
-            "\\?\\{(.+)\\}" +
-            ":\\{(.+)\\}$";
-    protected static final String RE_CALL_EXPRESSION = "^([A-Za-z_]+)" +
-            "\\(([^,]+)(,.+)*\\)$";
+    protected static final String RE_CONSTANT_EXPRESSION_INSERTED = "-?" + Interpreter.RE_NUMBER;
+    protected static final String RE_CONSTANT_EXPRESSION_COMPLETELY = "^" + RE_CONSTANT_EXPRESSION_INSERTED + "$";
 
-    protected static final Pattern CONSTANT_EXPRESSION_PATTERN = Pattern.compile(RE_CONSTANT_EXPRESSION);
-    protected static final Pattern BINARY_EXPRESSION_PATTERN = Pattern.compile(RE_BINARY_EXPRESSION);
-    protected static final Pattern IF_EXPRESSION_PATTERN = Pattern.compile(RE_IF_EXPRESSION);
-    protected static final Pattern CALL_EXPRESSION_PATTERN = Pattern.compile(RE_CALL_EXPRESSION);
+    protected static final String RE_IF_EXPRESSION_INSERTED = "\\[(.+)\\]" +
+            "\\?\\{(.+)\\}" +
+            ":\\{(.+)\\}";
+    protected static final String RE_IF_EXPRESSION_COMPLETELY = "^" + RE_IF_EXPRESSION_INSERTED + "$";
+
+    protected static final String RE_CALL_EXPRESSION_INSERTED = "(" + Interpreter.RE_IDENTIFIER_INSERTED +
+            ")\\(([^,]+)(,.+)*\\)";
+    protected static final String RE_CALL_EXPRESSION_COMPLETELY = "^" + RE_CALL_EXPRESSION_INSERTED + "$";
+
+    //|([^()+\-*/%><=]+)
+
+    protected static final String RE_BINARY_EXPRESSION_INSERTED = "\\(" +
+            "((" + Interpreter.RE_IDENTIFIER_INSERTED + ")|(" + RE_IF_EXPRESSION_INSERTED + ")|(" +
+            RE_CONSTANT_EXPRESSION_INSERTED + ")|(\\(.+\\))|(" +
+            RE_CALL_EXPRESSION_INSERTED + "))" +
+            "(" + Interpreter.RE_OPERATION + ")" +
+            "((" + Interpreter.RE_IDENTIFIER_INSERTED + ")|(" + RE_IF_EXPRESSION_INSERTED + ")|(" +
+            RE_CONSTANT_EXPRESSION_INSERTED + ")|(\\(.+\\))|(" +
+            RE_CALL_EXPRESSION_INSERTED + "))" +
+            "\\)";
+    protected static final String RE_BINARY_EXPRESSION_COMPLETELY = "^" + RE_BINARY_EXPRESSION_INSERTED + "$";
+
+    protected static final Pattern CONSTANT_EXPRESSION_PATTERN = Pattern.compile(RE_CONSTANT_EXPRESSION_COMPLETELY);
+    protected static final Pattern BINARY_EXPRESSION_PATTERN = Pattern.compile(RE_BINARY_EXPRESSION_COMPLETELY);
+    protected static final Pattern IF_EXPRESSION_PATTERN = Pattern.compile(RE_IF_EXPRESSION_COMPLETELY);
+    protected static final Pattern CALL_EXPRESSION_PATTERN = Pattern.compile(RE_CALL_EXPRESSION_COMPLETELY);
 
 
 
@@ -51,8 +62,8 @@ abstract public class Expression {
         if (matcher.find()) {
             return new BinaryExpression(
                     Expression.getExpression(matcher.group(1)),
-                    matcher.group(6),
-                    Expression.getExpression(matcher.group(7))
+                    matcher.group(13),
+                    Expression.getExpression(matcher.group(14))
             );
         }
         matcher = IF_EXPRESSION_PATTERN.matcher(expression);

@@ -9,10 +9,14 @@ public class ConstantExpression extends Expression {
 
     private int number;
 
-    public ConstantExpression(String constantExpression) throws InterpreterException {
+    private static void checkOfStringConstantExpression(String constantExpression) throws InterpreterException {
         if (!CONSTANT_EXPRESSION_PATTERN.matcher(constantExpression).find()) {
             throw new InterpreterException(InterpreterErrorCode.SYNTAX_ERROR);
         }
+    }
+
+    public ConstantExpression(String constantExpression) throws InterpreterException {
+        checkOfStringConstantExpression(constantExpression);
         if (constantExpression.startsWith("-")) {
             number = -Integer.parseInt(constantExpression.substring(1));
         } else {
