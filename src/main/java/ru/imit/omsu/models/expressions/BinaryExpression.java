@@ -6,6 +6,7 @@ import ru.imit.omsu.errors.InterpreterErrorCode;
 import ru.imit.omsu.errors.InterpreterException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 public class BinaryExpression extends Expression {
@@ -70,7 +71,7 @@ public class BinaryExpression extends Expression {
     }
 
     private int checkNotZero(Expression expression, Map<String, Integer> identifierToValue) throws InterpreterException {
-        int temp = expression.getValueWithParams(identifierToValue);
+        int temp = expression.getValueByParams(identifierToValue);
         if (temp == 0) {
             throw new InterpreterException(InterpreterErrorCode.RUNTIME_ERROR, this);
         }
@@ -78,40 +79,55 @@ public class BinaryExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> identifierToValue) throws InterpreterException {
+    public int getValueByParams(Map<String, Integer> identifierToValue) throws InterpreterException {
         if (operation == Operation.PLUS) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    + secondExpression.getValueWithParams(identifierToValue);
+            return firstExpression.getValueByParams(identifierToValue)
+                    + secondExpression.getValueByParams(identifierToValue);
         }
         if (operation == Operation.MINUS) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    - secondExpression.getValueWithParams(identifierToValue);
+            return firstExpression.getValueByParams(identifierToValue)
+                    - secondExpression.getValueByParams(identifierToValue);
         }
         if (operation == Operation.MULTIPLY) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    * secondExpression.getValueWithParams(identifierToValue);
+            return firstExpression.getValueByParams(identifierToValue)
+                    * secondExpression.getValueByParams(identifierToValue);
         }
         if (operation == Operation.DIVIDE) {
-            return firstExpression.getValueWithParams(identifierToValue)
+            return firstExpression.getValueByParams(identifierToValue)
                     / checkNotZero(secondExpression, identifierToValue);
         }
         if (operation == Operation.REMAINDER) {
-            return firstExpression.getValueWithParams(identifierToValue)
+            return firstExpression.getValueByParams(identifierToValue)
                     % checkNotZero(secondExpression, identifierToValue);
         }
         if (operation == Operation.MORE) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    > secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
+            return firstExpression.getValueByParams(identifierToValue)
+                    > secondExpression.getValueByParams(identifierToValue) ? 1 : 0;
         }
         if (operation == Operation.LESS) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    < secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
+            return firstExpression.getValueByParams(identifierToValue)
+                    < secondExpression.getValueByParams(identifierToValue) ? 1 : 0;
         }
         if (operation == Operation.EQUAL) {
-            return firstExpression.getValueWithParams(identifierToValue)
-                    == secondExpression.getValueWithParams(identifierToValue) ? 1 : 0;
+            return firstExpression.getValueByParams(identifierToValue)
+                    == secondExpression.getValueByParams(identifierToValue) ? 1 : 0;
         }
         throw new InterpreterException(InterpreterErrorCode.IMPOSSIBLE_ERROR);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BinaryExpression)) return false;
+        BinaryExpression that = (BinaryExpression) o;
+        return Objects.equals(getFirstExpression(), that.getFirstExpression()) &&
+                getOperation() == that.getOperation() &&
+                Objects.equals(getSecondExpression(), that.getSecondExpression());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFirstExpression(), getOperation(), getSecondExpression());
     }
 
     @Override

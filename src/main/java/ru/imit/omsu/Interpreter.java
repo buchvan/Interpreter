@@ -39,7 +39,6 @@ public class Interpreter {
         }
     }
 
-
     public static int run(List<String> lines) throws InterpreterException {
         String currentLine;
         int currentLineIndex = 0;
@@ -63,8 +62,6 @@ public class Interpreter {
         program.setLinesCount(currentLineIndex);
         return program.run();
     }
-
-
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

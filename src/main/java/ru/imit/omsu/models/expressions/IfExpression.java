@@ -46,10 +46,25 @@ public class IfExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
-        return condition.getValueWithParams(idToValue) != 0
-                ? expressionTrue.getValueWithParams(idToValue)
-                : expressionFalse.getValueWithParams(idToValue);
+    public int getValueByParams(Map<String, Integer> idToValue) throws InterpreterException {
+        return condition.getValueByParams(idToValue) != 0
+                ? expressionTrue.getValueByParams(idToValue)
+                : expressionFalse.getValueByParams(idToValue);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IfExpression)) return false;
+        IfExpression that = (IfExpression) o;
+        return Objects.equals(getCondition(), that.getCondition()) &&
+                Objects.equals(getExpressionTrue(), that.getExpressionTrue()) &&
+                Objects.equals(getExpressionFalse(), that.getExpressionFalse());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getCondition(), getExpressionTrue(), getExpressionFalse());
     }
 
     @Override

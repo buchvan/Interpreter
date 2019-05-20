@@ -52,7 +52,7 @@ public class CallExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> identifierToValueFromUp) throws InterpreterException {
+    public int getValueByParams(Map<String, Integer> identifierToValueFromUp) throws InterpreterException {
         FunctionDefinition functionDefinition;
         try {
             functionDefinition = Interpreter.program.getFunctionDefinition(identifier);
@@ -64,13 +64,12 @@ public class CallExpression extends Expression {
         }
         checkOfParametersCount(functionDefinition.getParameterList());
         List<String> params = functionDefinition.getParameterList();
-        Expression expression = functionDefinition.getExpression();
         Map<String, Integer> identifierToValueIts = new HashMap<>(argumentList.size());
-        int currentParameterIndex = 0;
         try {
+            int currentParameterIndex = 0;
             for (Expression expressionArgument : argumentList) {
                 identifierToValueIts.put(params.get(currentParameterIndex),
-                        expressionArgument.getValueWithParams(identifierToValueFromUp));
+                        expressionArgument.getValueByParams(identifierToValueFromUp));
                 currentParameterIndex++;
             }
         } catch (InterpreterException ex) {
@@ -78,11 +77,26 @@ public class CallExpression extends Expression {
             throw ex;
         }
         try {
-            return expression.getValueWithParams(identifierToValueIts);
+            Expression expression = functionDefinition.getExpression();
+            return expression.getValueByParams(identifierToValueIts);
         } catch (InterpreterException ex) {
             ex.setLine(functionDefinition.getLine());
             throw ex;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CallExpression)) return false;
+        CallExpression that = (CallExpression) o;
+        return Objects.equals(identifier, that.identifier) &&
+                Objects.equals(argumentList, that.argumentList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifier, argumentList);
     }
 
     @Override

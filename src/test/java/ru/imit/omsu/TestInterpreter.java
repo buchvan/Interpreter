@@ -68,6 +68,17 @@ public class TestInterpreter {
         assertEquals(0, Interpreter.run(getLinesForIfExpression1()));
     }
 
+    private List<String> getLinesForIfExpression2() {
+        return new ArrayList<>(Collections.singletonList(
+                "[(1=1)]?{[(5<2)]?{5}:{(2-5)}}:{0}"
+        ));
+    }
+
+    @Test
+    public void ifExpressionTest2() throws InterpreterException {
+        assertEquals(-3, Interpreter.run(getLinesForIfExpression2()));
+    }
+
     private List<String> getLinesForFunctionDefinitionList1() {
         return new ArrayList<>(Arrays.asList(
                 "g(x)={(f(x)+f((x/2)))}",
@@ -77,8 +88,21 @@ public class TestInterpreter {
     }
 
     @Test
-    public void functionDefinitionListTest() throws InterpreterException {
+    public void functionDefinitionListTest1() throws InterpreterException {
         assertEquals(60, Interpreter.run(getLinesForFunctionDefinitionList1()));
+    }
+
+    private List<String> getLinesForFunctionDefinitionList2() {
+        return new ArrayList<>(Arrays.asList(
+                "g(x)={[((x=0)+(x=1))]?{1}:{(x*g((x-1)))}}",
+                "f(x)={g([((x=0)+(x=1))]?{1}:{g(3)})}",
+                "f(10)"
+        ));
+    }
+
+    @Test
+    public void functionDefinitionListTest2() throws InterpreterException {
+        assertEquals(720, Interpreter.run(getLinesForFunctionDefinitionList2()));
     }
 
     private List<String> getLinesForError1() {
@@ -162,6 +186,24 @@ public class TestInterpreter {
             fail();
         } catch (InterpreterException ex) {
             assertEquals("RUNTIME ERROR (a/b):1", ex.toString());
+        }
+    }
+
+    private List<String> getLinesForError6() {
+        return new ArrayList<>(Arrays.asList(
+                "g()={(5*5)}",
+                "f(x)={[(x>11)]?{g()}:{(5*g())}}",
+                "f(20)"
+        ));
+    }
+
+    @Test
+    public void errorTest6() {
+        try {
+            Interpreter.run(getLinesForError6());
+            fail();
+        } catch (InterpreterException ex) {
+            assertEquals("SYNTAX ERROR", ex.toString());
         }
     }
 

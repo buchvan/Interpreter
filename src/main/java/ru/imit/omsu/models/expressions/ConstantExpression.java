@@ -25,8 +25,21 @@ public class ConstantExpression extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
+    public int getValueByParams(Map<String, Integer> idToValue) throws InterpreterException {
         return number;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ConstantExpression)) return false;
+        ConstantExpression that = (ConstantExpression) o;
+        return number == that.number;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Variable extends Expression {
     }
 
     @Override
-    public int getValueWithParams(Map<String, Integer> idToValue) throws InterpreterException {
+    public int getValueByParams(Map<String, Integer> idToValue) throws InterpreterException {
         Integer value = idToValue.get(identifier);
         if (value == null) {
             throw new InterpreterException(InterpreterErrorCode.PARAMETER_NOT_FOUND, identifier);
